@@ -70,15 +70,16 @@ export class RollFields {
 		}
 
 		try {
-			// Split the D20 and bonuses. We assume the first is a d20 roll always...
 			const fullRoll = new Roll(formula);
 			const baseRoll = new Roll(fullRoll.terms[0].formula ?? fullRoll.terms[0]);
+			const baseRollUnweighted = new Roll(fullRoll.terms[0].formula.replace("d20", "du"));
 			const bonusRoll = new Roll([...fullRoll.terms.slice(1).map(t => t.formula ?? t)].join(' ')).roll();
 
 			// Populate the roll entries
 			const entries = [];
-			for (let i = 0; i < numRolls; i++) {
-				entries.push(Utils.processRoll(baseRoll.reroll(), critThreshold, [20], bonusRoll));
+			entries.push(Utils.processRoll(baseRoll.reroll(), critThreshold, [20], bonusRoll));
+			for (let i = 1; i < numRolls; i++) {
+			    entries.push(Utils.processRoll(baseRollUnweighted.reroll(), critThreshold, [20], bonusRoll));
 			}
 
 			// Mark ignored rolls if advantage/disadvantage
